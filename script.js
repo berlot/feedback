@@ -109,23 +109,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Funkcja wysyłająca dane do zewnętrznego API (Google Sheets)
     async function sendFeedback(data) {
-        // Tu będzie URL do twojego API (Google Sheet Web App URL)
-        const apiUrl = 'https://script.google.com/macros/s/AKfycbwk3uyER1XFvtirdiNWf3vwZq5ggYS0GVfs6lWV0xrwdWFk92igtq8p46kWCBaedFj81Q/exec';
+        // URL do Google Sheet Web App
+        const apiUrl = 'https://script.google.com/macros/s/AKfycbxmmHZLxaCKNppAJxAWK2quwrIqFGnu7xw52tqKmGq1dolik88rSiIrVRqzP2aE2S9G/exec';
+        
+        console.log('Wysyłanie danych:', data);
         
         try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                mode: 'no-cors', // Ważne dla Cross-Origin
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+            // Przygotuj dane jako URL-encoded form data (zamiast JSON)
+            // To obejście dla ograniczeń CORS w Google Apps Script
+            const formData = new URLSearchParams();
+            formData.append('data', JSON.stringify(data));
+            
+            console.log('Wysyłanie do URL:', apiUrl);
+            
+            // Użyj metody GET z parametrami w URL zamiast POST z body
+            // Tworzymy endpoint z parametrami
+            const fetchUrl = `${apiUrl}?data=${encodeURIComponent(JSON.stringify(data))}`;
+            
+            // Wykonaj żądanie
+            const response = await fetch(fetchUrl, {
+                method: 'GET',
+                mode: 'no-cors'
             });
             
-            return true; // Zakładamy, że wysłanie się powiodło z no-cors
+            console.log('Odpowiedź otrzymana');
+            return true; // Zwróć true, nawet jeśli nie możemy zweryfikować odpowiedzi przez no-cors
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Błąd podczas wysyłania danych:', error);
             throw error;
         }
     }
