@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback po prezentacji AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div id="feedback-form" class="card">
+            <h1>Jak oceniasz prezentację?</h1>
+            <p class="subtitle">Twoja opinia jest dla nas bardzo ważna</p>
+            
+            <div class="rating-container">
+                <p class="rating-label">Oceń w skali od 0 do 10:</p>
+                <div class="rating-buttons">
+                    <div class="rating-numbers">
+                        <span>0</span>
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>6</span>
+                        <span>7</span>
+                        <span>8</span>
+                        <span>9</span>
+                        <span>10</span>
+                    </div>
+                    <input type="range" id="rating-slider" min="0" max="10" value="7" step="1">
+                    <div class="selected-rating">
+                        <p>Twoja ocena: <span id="rating-value">7</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feedback-text">
+                <label for="feedback">Co podobało Ci się najbardziej? Co można poprawić?</label>
+                <textarea id="feedback" rows="4" placeholder="Wpisz swoją opinię tutaj..."></textarea>
+            </div>
+            
+            <button id="submit-btn" class="pulse">Wyślij opinię</button>
+        </div>
+        
+        <div id="thank-you" class="card hidden">
+            <div class="thank-you-content">
+                <h1>Dziękujemy za Twoją opinię!</h1>
+                <div class="emoji">🙏</div>
+                <p>Twój feedback pomoże nam ulepszyć nasze przyszłe prezentacje.</p>
+                <button id="new-feedback-btn">Wyślij kolejną opinię</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Vibe Coding 2023 | Stworzone przy użyciu AI</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
