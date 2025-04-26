@@ -8,11 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackForm = document.getElementById('feedback-form');
     const thankYouScreen = document.getElementById('thank-you');
     
-    // Feedback storage array
-    let feedbackData = [];
-    
-    // Load any existing feedback data
-    loadFeedbackData();
+    // ID dla rozróżnienia sesji użytkownika
+    const sessionId = generateSessionId();
     
     // Update rating value when slider changes
     ratingSlider.addEventListener('input', () => {
@@ -45,26 +42,38 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Wysyłanie...';
+        submitBtn.classList.remove('pulse');
+        
         // Create feedback object
         const feedbackObject = {
+            sessionId: sessionId,
             rating: rating,
             feedback: feedback,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
         };
         
-        // Add to storage array
-        feedbackData.push(feedbackObject);
-        
-        // Save feedback data
-        saveFeedbackData();
-        
-        // Show thank you screen with animation
-        feedbackForm.style.animation = 'fadeOut 0.5s forwards';
-        setTimeout(() => {
-            feedbackForm.classList.add('hidden');
-            thankYouScreen.classList.remove('hidden');
-            thankYouScreen.style.animation = 'fadeIn 0.5s forwards';
-        }, 500);
+        // Send feedback to the API
+        sendFeedback(feedbackObject).then(() => {
+            // Show thank you screen with animation after successful submission
+            feedbackForm.style.animation = 'fadeOut 0.5s forwards';
+            setTimeout(() => {
+                feedbackForm.classList.add('hidden');
+                thankYouScreen.classList.remove('hidden');
+                thankYouScreen.style.animation = 'fadeIn 0.5s forwards';
+            }, 500);
+        }).catch(error => {
+            console.error('Error sending feedback:', error);
+            alert('Wystąpił błąd podczas wysyłania opinii. Spróbuj ponownie.');
+            
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Wyślij opinię';
+            submitBtn.classList.add('pulse');
+        });
     });
     
     // Add new feedback option
@@ -75,6 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ratingValue.style.color = 'var(--primary-light)';
         feedbackText.value = '';
         
+        // Reset submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Wyślij opinię';
+        submitBtn.classList.add('pulse');
+        
         // Switch back to feedback form with animation
         thankYouScreen.style.animation = 'fadeOut 0.5s forwards';
         setTimeout(() => {
@@ -84,27 +98,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
     
-    // Function to save feedback data to local storage
-    function saveFeedbackData() {
-        localStorage.setItem('feedbackData', JSON.stringify(feedbackData));
-        
-        // Also save to downloadable file
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(feedbackData, null, 2));
-        
-        // Create download link
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "feedback_data.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+    // Funkcja generująca unikalny identyfikator sesji
+    function generateSessionId() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
     
-    // Function to load feedback data from local storage
-    function loadFeedbackData() {
-        const storedData = localStorage.getItem('feedbackData');
-        if (storedData) {
-            feedbackData = JSON.parse(storedData);
+    // Funkcja wysyłająca dane do zewnętrznego API (Google Sheets)
+    async function sendFeedback(data) {
+        // Tu będzie URL do twojego API (Google Sheet Web App URL)
+        const apiUrl = 'https://script.google.com/macros/s/AKfycbwk3uyER1XFvtirdiNWf3vwZq5ggYS0GVfs6lWV0xrwdWFk92igtq8p46kWCBaedFj81Q/exec';
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Ważne dla Cross-Origin
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            return true; // Zakładamy, że wysłanie się powiodło z no-cors
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
         }
     }
     
